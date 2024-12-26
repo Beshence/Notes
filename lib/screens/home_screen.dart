@@ -25,8 +25,10 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Theme.of(context).colorScheme.inversePrimary,
         title: Text("Beshence Notes"),
+        actions: [
+          IconButton(onPressed: () => context.go("/settings"), icon: Icon(Icons.account_circle_outlined)),
+        ],
       ),
       body: ListenableBuilder(
           listenable: notesChangeNotifier,
@@ -34,14 +36,40 @@ class _HomeScreenState extends State<HomeScreen> {
             List<Note> notes = notesBox.getAllLocalNotes();
             List<Widget> notesWidgets = [];
             for(Note note in notes) {
-              notesWidgets.add(MaterialButton(child: Text(note.id), onPressed: () => context.go("/note/${note.id}")));
+              notesWidgets.add(
+                  Card(
+                    color: ElevationOverlay.applySurfaceTint(
+                        Theme.of(context).colorScheme.surface,
+                        Theme.of(context).colorScheme.surfaceTint,
+                        3),
+                    margin: EdgeInsets.zero,
+                    child: InkWell(
+                      borderRadius: BorderRadius.all(Radius.circular(12)),
+                      onTap: () => context.go("/note/${note.id}"),
+                      child: Padding(
+                          padding: const EdgeInsets.all(16),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              if(note.title != null) Text(note.title!, style: TextStyle(fontSize: 18),),
+                              if(note.text != null) SizedBox.fromSize(size: Size(0, 12)),
+                              if(note.text != null) Text(note.text!, style: TextStyle(fontSize: 14), maxLines: 5, overflow: TextOverflow.fade,)
+                            ],
+                          )
+                      ),
+                    ),
+                  )
+              );
             }
-            return Column(children: notesWidgets);
+            return Padding(padding: EdgeInsets.all(16),
+            child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16,children: notesWidgets,));
           }
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: _openNewNote,
         tooltip: 'New note',
+        isExtended: true,
+        enableFeedback: true,
         child: const Icon(Icons.add),
       ),
     );
