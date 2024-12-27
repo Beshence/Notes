@@ -52,7 +52,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               if(note.title != null) Text(note.title!, style: TextStyle(fontSize: 18),),
-                              if(note.text != null) SizedBox.fromSize(size: Size(0, 12)),
+                              if(note.text != null && note.title != null) SizedBox.fromSize(size: Size(0, 12)),
                               if(note.text != null) Text(note.text!, style: TextStyle(fontSize: 14), maxLines: 5, overflow: TextOverflow.fade,)
                             ],
                           )

@@ -43,11 +43,6 @@ class _NoteScreenState extends State<NoteScreen> {
 
   @override
   void dispose() {
-    saveNote();
-    if(widget.note.title == null && widget.note.text == null) {
-      notesBox.deleteLocalNote(widget.note);
-      notesChangeNotifier.updateNotes();
-    }
     titleController.dispose();
     textController.dispose();
     super.dispose();
@@ -83,51 +78,61 @@ class _NoteScreenState extends State<NoteScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        top: false, bottom: false, left: true, right: true,
-        child: CustomScrollView(
-          slivers: [
-            SliverAppBar(
-              scrolledUnderElevation: 3,
-              floating: false,
-              pinned: !false,
-            ),
-            SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        children: [
-                          TextField(
-                            style: TextStyle(fontSize: 24),
-                            controller: titleController,
-                            maxLines: null,
-                            decoration: InputDecoration(
-                              hintText: "Title",
-                              border: InputBorder.none,
+    return PopScope(
+      onPopInvokedWithResult: (didPop, result) {
+        if (didPop) {
+          saveNote();
+          if(widget.note.title == null && widget.note.text == null) {
+            notesBox.deleteLocalNote(widget.note);
+            notesChangeNotifier.updateNotes();
+          }
+        }
+      },
+      child: Scaffold(
+        body: SafeArea(
+          top: false, bottom: false, left: true, right: true,
+          child: CustomScrollView(
+            slivers: [
+              SliverAppBar(
+                scrolledUnderElevation: 3,
+                floating: false,
+                pinned: !false,
+              ),
+              SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          children: [
+                            TextField(
+                              style: TextStyle(fontSize: 24),
+                              controller: titleController,
+                              maxLines: null,
+                              decoration: InputDecoration(
+                                hintText: "Title",
+                                border: InputBorder.none,
+                              ),
                             ),
-                          ),
-                          TextField(
-                            maxLines: null,
-                            controller: textController,
-                            //style: TextStyle(height: 1.25),
-                            decoration: InputDecoration(
-                              hintText: "Start writing...",
-                              border: InputBorder.none,
-                            ),
-                            //autofocus: true,
-                          )
-                        ],
-                      ),
-                    )
-                  ]
-                )
-            )
-          ]
-        ),
-      )
+                            TextField(
+                              maxLines: null,
+                              controller: textController,
+                              //style: TextStyle(height: 1.25),
+                              decoration: InputDecoration(
+                                hintText: "Start writing...",
+                                border: InputBorder.none,
+                              ),
+                            )
+                          ],
+                        ),
+                      )
+                    ]
+                  )
+              )
+            ]
+          ),
+        )
+      ),
     );
   }
 }
