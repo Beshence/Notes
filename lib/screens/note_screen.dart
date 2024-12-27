@@ -1,3 +1,5 @@
+import 'package:flutter/services.dart';
+import 'package:go_router/go_router.dart';
 import 'package:notes/main.dart';
 
 import 'package:flutter/material.dart';
@@ -15,8 +17,9 @@ class NoteScreen extends StatefulWidget {
 
 
 class _NoteScreenState extends State<NoteScreen> {
-  final titleController = TextEditingController();
-  final textController = TextEditingController();
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController textController = TextEditingController();
+  final FocusNode textFocusNode = FocusNode();
 
   DateTime titleLastModified = DateTime.timestamp();
   DateTime textLastModified = DateTime.timestamp();
@@ -45,6 +48,7 @@ class _NoteScreenState extends State<NoteScreen> {
   void dispose() {
     titleController.dispose();
     textController.dispose();
+    textFocusNode.dispose();
     super.dispose();
   }
 
@@ -89,15 +93,33 @@ class _NoteScreenState extends State<NoteScreen> {
         }
       },
       child: Scaffold(
+        appBar: AppBar(
+          actions: [
+            PopupMenuButton<String>(
+              onSelected: (value) {
+                switch(value) {
+                  case "Delete":
+                    titleController.text = '';
+                    textController.text = '';
+                    context.pop();
+                    break;
+                }
+              },
+              itemBuilder: (BuildContext context) {
+                return {'Delete'}.map((String choice) {
+                  return PopupMenuItem<String>(
+                    value: choice,
+                    child: Text(choice),
+                  );
+                }).toList();
+              },
+            ),
+          ],
+        ),
         body: SafeArea(
           top: false, bottom: false, left: true, right: true,
           child: CustomScrollView(
             slivers: [
-              SliverAppBar(
-                scrolledUnderElevation: 3,
-                floating: false,
-                pinned: !false,
-              ),
               SliverList(
                   delegate: SliverChildListDelegate(
                     [
@@ -107,6 +129,7 @@ class _NoteScreenState extends State<NoteScreen> {
                           children: [
                             TextField(
                               style: TextStyle(fontSize: 24),
+                              scrollPhysics: NeverScrollableScrollPhysics(),
                               controller: titleController,
                               maxLines: null,
                               decoration: InputDecoration(
@@ -115,6 +138,8 @@ class _NoteScreenState extends State<NoteScreen> {
                               ),
                             ),
                             TextField(
+                              focusNode: textFocusNode,
+                              scrollPhysics: NeverScrollableScrollPhysics(),
                               maxLines: null,
                               controller: textController,
                               //style: TextStyle(height: 1.25),
@@ -128,6 +153,16 @@ class _NoteScreenState extends State<NoteScreen> {
                       )
                     ]
                   )
+              ),
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: GestureDetector(
+                  onTap: () {
+                    textFocusNode.requestFocus();
+                    textController.selection = TextSelection.fromPosition(TextPosition(offset: textController.text.length));
+                    SystemChannels.textInput.invokeMethod("TextInput.show");
+                  },
+                ),
               )
             ]
           ),
