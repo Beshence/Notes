@@ -5,10 +5,10 @@ import 'package:notes/main.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/misc.dart';
 
-import '../boxes/notes_box_v1.dart';
+import '../boxes/local_notes_box_v1.dart';
 
 class NoteScreen extends StatefulWidget {
-  final NoteV1 note;
+  final LocalNoteV1 note;
   const NoteScreen({super.key, required this.note});
 
   @override
@@ -39,7 +39,7 @@ class _NoteScreenState extends State<NoteScreen> {
     }
     if(flag) {
       widget.note.modifiedAt = DateTime.timestamp();
-      notesBox.updateLocalNote(widget.note);
+      localNotesBox.updateLocalNote(widget.note);
       notesChangeNotifier.updateNotes();
     }
   }
@@ -97,7 +97,7 @@ class _NoteScreenState extends State<NoteScreen> {
               onSelected: (value) {
                 switch(value) {
                   case "Delete":
-                    notesBox.deleteLocalNote(widget.note);
+                    localNotesBox.deleteLocalNote(widget.note);
                     notesChangeNotifier.updateNotes();
                     context.pop("delete");
                     break;

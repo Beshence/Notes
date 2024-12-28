@@ -1,10 +1,9 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notes/main.dart';
 import 'package:uuid/uuid.dart';
 
-import '../boxes/notes_box_v1.dart';
+import '../boxes/local_notes_box_v1.dart';
 import '../misc.dart';
 import '../widgets/dynamic_grid.dart';
 import '../widgets/suggestion.dart';
@@ -19,8 +18,8 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   void _openNewNote() {
-    NoteV1 note = NoteV1(id: Uuid().v4(), createdAt: DateTime.timestamp(), modifiedAt: DateTime.timestamp(), title: '', text: '');
-    notesBox.addLocalNote(note);
+    LocalNoteV1 note = LocalNoteV1(id: Uuid().v4(), createdAt: DateTime.timestamp(), modifiedAt: DateTime.timestamp(), title: '', text: '');
+    localNotesBox.addLocalNote(note);
     notesChangeNotifier.updateNotes();
     context.push('/note/${note.id}');
   }
@@ -180,9 +179,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ListenableBuilder(
                     listenable: notesChangeNotifier,
                     builder: (BuildContext context, Widget? child) {
-                      List<NoteV1> notes = notesBox.getAllLocalNotesSorted();
+                      List<LocalNoteV1> notes = localNotesBox.getAllLocalNotesSorted();
                       List<Widget> notesWidgets = [];
-                      for(NoteV1 note in notes) {
+                      for(LocalNoteV1 note in notes) {
                         notesWidgets.add(
                             Card(
                               color: ElevationOverlay.applySurfaceTint(
@@ -219,7 +218,7 @@ class _HomeScreenState extends State<HomeScreen> {
               child: ListenableBuilder(
                 listenable: notesChangeNotifier,
                 builder: (BuildContext context, Widget? child) {
-                  if(notesBox.localNotesLength == 0) {
+                  if(localNotesBox.localNotesLength == 0) {
                     return Padding(
                       padding: const EdgeInsets.only(bottom: 96),
                       child: Center(child: Text("No notes."),),
