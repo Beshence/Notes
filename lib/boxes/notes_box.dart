@@ -27,6 +27,7 @@ class NotesBox {
   }
 
   List<Note> getAllLocalNotes() => _localNotesBox.getAll();
+  List<Note> getAllLocalNotesSorted() => (_localNotesBox.query()..order(Note_.modifiedAt, flags: Order.descending)).build().find();
   void addLocalNote(Note note) => _localNotesBox.put(note, mode: PutMode.insert);
   void updateLocalNote(Note note) => _localNotesBox.put(note, mode: PutMode.update);
   Note getLocalNote(String id) => _localNotesBox.query(Note_.id.equals(id)).build().find()[0];

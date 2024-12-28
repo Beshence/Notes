@@ -127,7 +127,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ListenableBuilder(
                     listenable: notesChangeNotifier,
                     builder: (BuildContext context, Widget? child) {
-                      List<Note> notes = notesBox.getAllLocalNotes();
+                      List<Note> notes = notesBox.getAllLocalNotesSorted();
                       List<Widget> notesWidgets = [];
                       for(Note note in notes) {
                         notesWidgets.add(
