@@ -44,14 +44,65 @@ class _HomeScreenState extends State<HomeScreen> {
         centerTitle: true,
         actions: [
           PopupMenuButton<String>(
-            onSelected: (value) {},
+            elevation: 10,
+            constraints: BoxConstraints(minWidth: 256),
+            borderRadius: BorderRadius.all(Radius.circular(100)),
+            surfaceTintColor: Theme.of(context).colorScheme.primary,
             itemBuilder: (BuildContext context) {
-              return {'Sort', "Settings"}.map((String choice) {
-                return PopupMenuItem<String>(
-                  value: choice,
-                  child: Text(choice),
-                );
-              }).toList();
+              return !kDebugMode ? [] : [
+                PopupMenuItem(
+                  onTap: () {},
+                  child: Row(
+                    children: [
+                      Icon(Icons.cloud_outlined),
+                      SizedBox(width: 8,),
+                      Text("785 MB / 15 GB used")
+                    ],
+                  ),
+                ),
+                PopupMenuDivider(),
+                PopupMenuItem(
+                  onTap: () => context.push("/sort"),
+                  child: Row(
+                    children: [
+                      Icon(Icons.sort),
+                      SizedBox(width: 8,),
+                      Text("Sort by")
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  onTap: () => context.push("/newlabel"),
+                  child: Row(
+                    children: [
+                      Icon(Icons.new_label),
+                      SizedBox(width: 8,),
+                      Text("New label")
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  onTap: () => context.push("/newfolder"),
+                  child: Row(
+                    children: [
+                      Icon(Icons.create_new_folder),
+                      SizedBox(width: 8,),
+                      Text("New folder")
+                    ],
+                  ),
+                ),
+                PopupMenuDivider(),
+                PopupMenuItem(
+                  onTap: () => context.push("/settings"),
+                  child: Row(
+                    children: [
+                      Icon(Icons.settings),
+                      SizedBox(width: 8,),
+                      Text("Settings")
+                    ],
+                  ),
+                )
+              ];
             },
           ),
           const SizedBox(width: 4),
