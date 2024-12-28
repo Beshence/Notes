@@ -86,7 +86,6 @@ class _NoteScreenState extends State<NoteScreen> {
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
           if(result != "delete") {
-            print("save");
             saveNote();
           }
         }
