@@ -57,34 +57,16 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           MaterialButton(child: Text("Save"), onPressed: () async {
             BeshenceVault vault = BeshenceVault(address: addressController.text);
-            BeshenceVaultInfo vaultInfo = await vault.getVaultInfo();
-            /*final dio = getDio(token: tokenController.text);
-            final serverHelloResponse = (await dio.get('https://${addressController.text}/api/hello'));
-            print(serverHelloResponse.data);
-
-            if(serverHelloResponse.data["response"]["hello"] != "Hi!") return;
-            if(serverHelloResponse.data["response"]["api_version"] != "v1.0") return;
-
-            final chainResponse = await dio.get('https://${addressController.text}/api/v1.0/chain/notes/last');
-            print("chainResponse");
-            print(chainResponse.data);
-            if((chainResponse.data as Map<String, dynamic>).containsKey("error")) {
-              if(chainResponse.data["error"]["name"] == "chain_not_initialized") {
-                final chainCreationResponse = await dio.post('https://${addressController.text}/api/v1.0/chain/notes', data: {});
-                print("chainCreationResponse");
-                print(chainCreationResponse.data);
-                if(chainCreationResponse.statusCode != 201) return;
-              } else if(chainResponse.data["error"]["name"] == "last_not_found") {
-
-              } else return;
-            }
+            BeshenceVaultInfo vaultInfo = await vault.vaultInfo;
+            String chainName = await vault.initChain("notes", ignoreAlreadyInitialized: true);
 
             if(server == null) {
               server = Server(address: addressController.text, token: tokenController.text, order: 0, lastEventId: null);
             } else {
               server!.address = addressController.text;
               server!.token = tokenController.text;
-            }*/
+            }
+
             serversBox.setServer(server!);
           })
         ],
