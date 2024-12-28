@@ -5,6 +5,9 @@ import 'package:uuid/uuid.dart';
 
 import '../boxes/notes_box.dart';
 import '../misc.dart';
+import '../widgets/dynamic_grid.dart';
+import '../widgets/suggestion.dart';
+import '../widgets/wavy_divider.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -25,9 +28,32 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Beshence Notes"),
+        leading: IconButton(onPressed: () {}, icon: Icon(Icons.search)),
+        title: Padding(
+          padding: const EdgeInsets.only(left: /*24+12+16*/ 0),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text("Beshence Notes"),
+              SizedBox(width: 12,),
+              Icon(Icons.cloud_off, size: 16, color: Theme.of(context).secondaryHeaderColor,)
+            ],
+          ),
+        ),
+        centerTitle: true,
         actions: [
-          IconButton(onPressed: () => context.push("/settings"), icon: Icon(Icons.cloud_off)),
+          PopupMenuButton<String>(
+            onSelected: (value) {},
+            itemBuilder: (BuildContext context) {
+              return {'Sort', "Settings"}.map((String choice) {
+                return PopupMenuItem<String>(
+                  value: choice,
+                  child: Text(choice),
+                );
+              }).toList();
+            },
+          ),
+          const SizedBox(width: 4),
         ],
       ),
       body: SafeArea(
@@ -36,6 +62,64 @@ class _HomeScreenState extends State<HomeScreen> {
           slivers: [
             SliverList(
               delegate: SliverChildListDelegate([
+                if(true) Column(
+                  children: [
+                    Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Center(
+                                child: Column(
+                                  children: [
+                                    Icon(Icons.sticky_note_2, size: 32,),
+                                    SizedBox(height: 24,),
+                                    RichText(
+                                        text: TextSpan(
+                                          style: TextStyle(fontSize: 24, height: 1.25,),
+                                            text: "Welcome to\n",
+                                            children: [
+                                              TextSpan(
+                                                  text: "Beshence Notes",
+                                                style: TextStyle(fontWeight: FontWeight.bold)
+                                              ),
+                                              TextSpan(text: "!")
+                                            ]
+                                        ),
+                                        textAlign: TextAlign.center),
+                                    //Text("Welcome to\nBeshence Notes!", style: TextStyle(fontSize: 24, height: 1.25,), textAlign: TextAlign.center),
+                                    SizedBox(height: 16,),
+                                    Text("Let's start with these recommendations:", textAlign: TextAlign.center),
+                                    SizedBox(height: 24,),
+                                  ],
+                                )
+                            ),
+                            DynamicGridView(
+                                maxWidthOnPortrait: 300,
+                                maxWidthOnLandscape: 400,
+                                sliver: false,
+                                height: const DynamicGridViewHeight.fixed(84),
+                                spaceBetween: 16,
+                                children: [
+                                  if(/*suggestions.contains("account")*/true) Suggestion(
+                                      icon: Icon(Icons.cloud_outlined, color: Theme.of(context).textTheme.bodySmall?.color),
+                                      title: "Turn on notes backup and synchronisation",
+                                      button: IconButton.filled(onPressed: () => {}, icon: const Icon(Icons.navigate_next)),
+                                      cancelButton: IconButton(icon: const Icon(Icons.close), onPressed: () => {}/*setState(() => suggestions.remove("account"))*/)
+                                  ),
+                                ]
+                            ),
+                          ],
+                        )
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      child: SizedBox(
+                        child: WavyDivider(height: 2, color: Theme.of(context).secondaryHeaderColor.withAlpha(100), wavelength: 20,),
+                      ),
+                    ),
+                  ],
+                ),
                 ListenableBuilder(
                     listenable: notesChangeNotifier,
                     builder: (BuildContext context, Widget? child) {
@@ -67,13 +151,27 @@ class _HomeScreenState extends State<HomeScreen> {
                             )
                         );
                       }
-                      return Padding(padding: EdgeInsets.all(16),
-                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16,children: notesWidgets,));
+                      return notes.isNotEmpty ? Padding(padding: EdgeInsets.only(top: 16, left: 16, bottom: 16+96, right: 16),
+                          child: Column(crossAxisAlignment: CrossAxisAlignment.stretch, spacing: 16, children: notesWidgets,)) : SizedBox.shrink();
                     }
                 ),
-                SizedBox(height: 96,)
               ]),
             ),
+            SliverFillRemaining(
+              hasScrollBody: false,
+              child: ListenableBuilder(
+                listenable: notesChangeNotifier,
+                builder: (BuildContext context, Widget? child) {
+                  if(notesBox.localNotesLength == 0) {
+                    return Padding(
+                      padding: const EdgeInsets.only(bottom: 96),
+                      child: Center(child: Text("No notes."),),
+                    );
+                  }
+                  return SizedBox.shrink();
+                },
+              ),
+            )
           ],
         ),
       ),
