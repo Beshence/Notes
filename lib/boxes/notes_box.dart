@@ -31,6 +31,7 @@ class NotesBox {
   void updateLocalNote(Note note) => _localNotesBox.put(note, mode: PutMode.update);
   Note getLocalNote(String id) => _localNotesBox.query(Note_.id.equals(id)).build().find()[0];
   void deleteLocalNote(Note note) => _localNotesBox.remove(note.objectBoxId);
+  int get localNotesLength => _localNotesBox.count();
 
   List<Note> getAllServerNotes() => _serverNotesBox.getAll();
   void addServerNote(Note note) => _serverNotesBox.put(note, mode: PutMode.insert);
