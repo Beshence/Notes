@@ -36,7 +36,7 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               Text("Beshence Notes"),
               SizedBox(width: 12,),
-              Icon(Icons.cloud_off, size: 16, color: Theme.of(context).secondaryHeaderColor,)
+              Icon(Icons.cloud_off, size: 16, color: Theme.of(context).colorScheme.secondary,)
             ],
           ),
         ),
@@ -76,7 +76,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     SizedBox(height: 24,),
                                     RichText(
                                         text: TextSpan(
-                                          style: TextStyle(fontSize: 24, height: 1.25,),
+                                          style: TextStyle(fontSize: 24, height: 1.25, color: Theme.of(context).colorScheme.onPrimaryContainer),
                                             text: "Welcome to\n",
                                             children: [
                                               TextSpan(
@@ -89,7 +89,10 @@ class _HomeScreenState extends State<HomeScreen> {
                                         textAlign: TextAlign.center),
                                     //Text("Welcome to\nBeshence Notes!", style: TextStyle(fontSize: 24, height: 1.25,), textAlign: TextAlign.center),
                                     SizedBox(height: 16,),
-                                    Text("Let's start with these recommendations:", textAlign: TextAlign.center),
+                                    Text(
+                                        "Let's start with these recommendations:",
+                                        style: TextStyle(color: Theme.of(context).colorScheme.onPrimaryContainer),
+                                        textAlign: TextAlign.center),
                                     SizedBox(height: 24,),
                                   ],
                                 )
@@ -115,7 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     Padding(
                       padding: const EdgeInsets.symmetric(vertical: 16),
                       child: SizedBox(
-                        child: WavyDivider(height: 2, color: Theme.of(context).secondaryHeaderColor.withAlpha(100), wavelength: 20,),
+                        child: WavyDivider(height: 2, color: Theme.of(context).colorScheme.onPrimaryContainer.withAlpha(100), wavelength: 20,),
                       ),
                     ),
                   ],
