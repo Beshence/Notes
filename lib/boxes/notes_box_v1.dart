@@ -47,9 +47,10 @@ class NoteV1 {
   int objectBoxId;
   @Unique()
   String id;
+  DateTime createdAt;
   DateTime modifiedAt;
   String? title;
   String? text;
 
-  NoteV1({this.objectBoxId = 0, required this.id, required this.modifiedAt, required this.title, required this.text});
+  NoteV1({this.objectBoxId = 0, required this.id, required this.createdAt, required this.modifiedAt, required this.title, required this.text});
 }

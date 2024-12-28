@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   void _openNewNote() {
-    NoteV1 note = NoteV1(id: Uuid().v4(), modifiedAt: DateTime.timestamp(), title: '', text: '');
+    NoteV1 note = NoteV1(id: Uuid().v4(), createdAt: DateTime.timestamp(), modifiedAt: DateTime.timestamp(), title: '', text: '');
     notesBox.addLocalNote(note);
     notesChangeNotifier.updateNotes();
     context.push('/note/${note.id}');

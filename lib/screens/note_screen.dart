@@ -85,10 +85,9 @@ class _NoteScreenState extends State<NoteScreen> {
     return PopScope(
       onPopInvokedWithResult: (didPop, result) {
         if (didPop) {
-          saveNote();
-          if(widget.note.title == null && widget.note.text == null) {
-            notesBox.deleteLocalNote(widget.note);
-            notesChangeNotifier.updateNotes();
+          if(result != "delete") {
+            print("save");
+            saveNote();
           }
         }
       },
@@ -99,9 +98,9 @@ class _NoteScreenState extends State<NoteScreen> {
               onSelected: (value) {
                 switch(value) {
                   case "Delete":
-                    titleController.text = '';
-                    textController.text = '';
-                    context.pop();
+                    notesBox.deleteLocalNote(widget.note);
+                    notesChangeNotifier.updateNotes();
+                    context.pop("delete");
                     break;
                 }
               },

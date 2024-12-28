@@ -22,34 +22,39 @@ export 'package:objectbox/objectbox.dart'; // so that callers only have to impor
 
 final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(1, 3290984917518088947),
+      id: const obx_int.IdUid(1, 6418648264883148521),
       name: 'NoteV1',
-      lastPropertyId: const obx_int.IdUid(5, 1757189922919297895),
+      lastPropertyId: const obx_int.IdUid(6, 5938313663445189552),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 8798763573475164399),
+            id: const obx_int.IdUid(1, 7663299322526942019),
             name: 'objectBoxId',
             type: 6,
             flags: 1),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 5757723987102418290),
+            id: const obx_int.IdUid(2, 1640767637990908922),
             name: 'id',
             type: 9,
             flags: 2080,
-            indexId: const obx_int.IdUid(1, 1444639913407998758)),
+            indexId: const obx_int.IdUid(1, 5596055020906544312)),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 5946519103585441605),
+            id: const obx_int.IdUid(3, 4811480346116440744),
+            name: 'createdAt',
+            type: 10,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(4, 2161686364041747650),
             name: 'modifiedAt',
             type: 10,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 1670689885706187615),
+            id: const obx_int.IdUid(5, 5556934943868800687),
             name: 'title',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 1757189922919297895),
+            id: const obx_int.IdUid(6, 5938313663445189552),
             name: 'text',
             type: 9,
             flags: 0)
@@ -57,35 +62,35 @@ final _entities = <obx_int.ModelEntity>[
       relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[]),
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(2, 2009859748547779222),
+      id: const obx_int.IdUid(2, 4669211194556968395),
       name: 'ServerV1',
-      lastPropertyId: const obx_int.IdUid(5, 240960398642257573),
+      lastPropertyId: const obx_int.IdUid(5, 1151063189204008714),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 7192751140196517737),
+            id: const obx_int.IdUid(1, 2640672662774767356),
             name: 'objectBoxId',
             type: 6,
             flags: 1),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 2614959410271389433),
+            id: const obx_int.IdUid(2, 6898613133216483453),
             name: 'address',
             type: 9,
             flags: 2080,
-            indexId: const obx_int.IdUid(2, 880790731597365665)),
+            indexId: const obx_int.IdUid(2, 8913905595206211271)),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 7660462076586673278),
+            id: const obx_int.IdUid(3, 918777140285327299),
             name: 'token',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 536614793786255502),
+            id: const obx_int.IdUid(4, 4579295310147870988),
             name: 'order',
             type: 6,
             flags: 40,
-            indexId: const obx_int.IdUid(3, 6295956280416461531)),
+            indexId: const obx_int.IdUid(3, 6970830622761130099)),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 240960398642257573),
+            id: const obx_int.IdUid(5, 1151063189204008714),
             name: 'lastEventId',
             type: 9,
             flags: 0)
@@ -93,24 +98,24 @@ final _entities = <obx_int.ModelEntity>[
       relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[]),
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(3, 3396702135765581732),
+      id: const obx_int.IdUid(3, 7035161971617496177),
       name: 'SuggestionV1',
-      lastPropertyId: const obx_int.IdUid(3, 2814008788174982973),
+      lastPropertyId: const obx_int.IdUid(3, 1705943682965986212),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 731341226292811104),
+            id: const obx_int.IdUid(1, 2151033512949093129),
             name: 'objectBoxId',
             type: 6,
             flags: 1),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 3244108132688636195),
+            id: const obx_int.IdUid(2, 5256995484700967669),
             name: 'name',
             type: 9,
             flags: 2080,
-            indexId: const obx_int.IdUid(4, 3141785940810868356)),
+            indexId: const obx_int.IdUid(4, 8659008565143219895)),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 2814008788174982973),
+            id: const obx_int.IdUid(3, 1705943682965986212),
             name: 'data',
             type: 9,
             flags: 0)
@@ -154,8 +159,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(3, 3396702135765581732),
-      lastIndexId: const obx_int.IdUid(4, 3141785940810868356),
+      lastEntityId: const obx_int.IdUid(3, 7035161971617496177),
+      lastIndexId: const obx_int.IdUid(4, 8659008565143219895),
       lastRelationId: const obx_int.IdUid(0, 0),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
@@ -181,12 +186,13 @@ obx_int.ModelDefinition getObjectBoxModel() {
               object.title == null ? null : fbb.writeString(object.title!);
           final textOffset =
               object.text == null ? null : fbb.writeString(object.text!);
-          fbb.startTable(6);
+          fbb.startTable(7);
           fbb.addInt64(0, object.objectBoxId);
           fbb.addOffset(1, idOffset);
-          fbb.addInt64(2, object.modifiedAt.millisecondsSinceEpoch);
-          fbb.addOffset(3, titleOffset);
-          fbb.addOffset(4, textOffset);
+          fbb.addInt64(2, object.createdAt.millisecondsSinceEpoch);
+          fbb.addInt64(3, object.modifiedAt.millisecondsSinceEpoch);
+          fbb.addOffset(4, titleOffset);
+          fbb.addOffset(5, textOffset);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -197,15 +203,18 @@ obx_int.ModelDefinition getObjectBoxModel() {
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
           final idParam = const fb.StringReader(asciiOptimization: true)
               .vTableGet(buffer, rootOffset, 6, '');
-          final modifiedAtParam = DateTime.fromMillisecondsSinceEpoch(
+          final createdAtParam = DateTime.fromMillisecondsSinceEpoch(
               const fb.Int64Reader().vTableGet(buffer, rootOffset, 8, 0));
+          final modifiedAtParam = DateTime.fromMillisecondsSinceEpoch(
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 10, 0));
           final titleParam = const fb.StringReader(asciiOptimization: true)
-              .vTableGetNullable(buffer, rootOffset, 10);
-          final textParam = const fb.StringReader(asciiOptimization: true)
               .vTableGetNullable(buffer, rootOffset, 12);
+          final textParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 14);
           final object = NoteV1(
               objectBoxId: objectBoxIdParam,
               id: idParam,
+              createdAt: createdAtParam,
               modifiedAt: modifiedAtParam,
               title: titleParam,
               text: textParam);
@@ -305,17 +314,21 @@ class NoteV1_ {
   /// See [NoteV1.id].
   static final id = obx.QueryStringProperty<NoteV1>(_entities[0].properties[1]);
 
+  /// See [NoteV1.createdAt].
+  static final createdAt =
+      obx.QueryDateProperty<NoteV1>(_entities[0].properties[2]);
+
   /// See [NoteV1.modifiedAt].
   static final modifiedAt =
-      obx.QueryDateProperty<NoteV1>(_entities[0].properties[2]);
+      obx.QueryDateProperty<NoteV1>(_entities[0].properties[3]);
 
   /// See [NoteV1.title].
   static final title =
-      obx.QueryStringProperty<NoteV1>(_entities[0].properties[3]);
+      obx.QueryStringProperty<NoteV1>(_entities[0].properties[4]);
 
   /// See [NoteV1.text].
   static final text =
-      obx.QueryStringProperty<NoteV1>(_entities[0].properties[4]);
+      obx.QueryStringProperty<NoteV1>(_entities[0].properties[5]);
 }
 
 /// [ServerV1] entity fields to define ObjectBox queries.
