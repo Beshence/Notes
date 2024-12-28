@@ -1,8 +1,8 @@
+import 'package:beshence_vault/beshence_vault.dart';
 import 'package:flutter/material.dart';
 
 import '../boxes/servers_box.dart';
 import '../main.dart';
-import '../misc.dart';
 
 class SettingsScreen extends StatefulWidget {
   const SettingsScreen({super.key});
@@ -56,7 +56,9 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           MaterialButton(child: Text("Save"), onPressed: () async {
-            final dio = getDio(token: tokenController.text);
+            BeshenceVault vault = BeshenceVault(address: addressController.text);
+            BeshenceVaultInfo vaultInfo = await vault.getVaultInfo();
+            /*final dio = getDio(token: tokenController.text);
             final serverHelloResponse = (await dio.get('https://${addressController.text}/api/hello'));
             print(serverHelloResponse.data);
 
@@ -82,7 +84,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
             } else {
               server!.address = addressController.text;
               server!.token = tokenController.text;
-            }
+            }*/
             serversBox.setServer(server!);
           })
         ],

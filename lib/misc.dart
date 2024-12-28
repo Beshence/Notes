@@ -59,21 +59,3 @@ class IsolateHandler {
   Future<void> isolate(ReceivePort isolateReceivePort, SendPort mainSendPort) async {}
 
 }
-
-Dio getDio({String? token}) {
-  final dio = Dio();
-
-  (dio.httpClientAdapter as IOHttpClientAdapter).createHttpClient = () {
-    final client = HttpClient();
-    // TODO: change it
-    client.badCertificateCallback = (cert, host, port) => true;
-    return client;
-  };
-
-  dio.options.headers = {
-    if (token != null) "Authorization": "Bearer $token"
-  };
-  dio.options.validateStatus = (code) => true;
-
-  return dio;
-}

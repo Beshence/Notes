@@ -37,7 +37,7 @@ class ServerIsolate extends IsolateHandler {
           ServersBox serversBox = await ServersBox.create();
           Server? server = serversBox.getServer();
           if (server == null) return;
-          final dio = getDio(token: server.token);
+          /*final dio = getDio(token: server.token);
           final serverHelloResponse = (await getDio().get('https://${server.address}/api/hello'));
 
           if(serverHelloResponse.data["response"]["hello"] != "Hi!") return;
@@ -62,7 +62,7 @@ class ServerIsolate extends IsolateHandler {
               }
             }
             print(newEvents);
-          }
+          }*/
       }
     });
   }
