@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:notes/main.dart';
@@ -62,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
           slivers: [
             SliverList(
               delegate: SliverChildListDelegate([
-                if(true) Column(
+                if(kDebugMode) Column(
                   children: [
                     Padding(
                         padding: const EdgeInsets.all(16.0),
