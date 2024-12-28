@@ -4,7 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:notes/main.dart';
 import 'package:uuid/uuid.dart';
 
-import '../boxes/notes_box.dart';
+import '../boxes/notes_box_v1.dart';
 import '../misc.dart';
 import '../widgets/dynamic_grid.dart';
 import '../widgets/suggestion.dart';
@@ -19,7 +19,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   void _openNewNote() {
-    Note note = Note(id: Uuid().v4(), modifiedAt: DateTime.timestamp(), title: '', text: '');
+    NoteV1 note = NoteV1(id: Uuid().v4(), modifiedAt: DateTime.timestamp(), title: '', text: '');
     notesBox.addLocalNote(note);
     notesChangeNotifier.updateNotes();
     context.push('/note/${note.id}');
@@ -49,7 +49,7 @@ class _HomeScreenState extends State<HomeScreen> {
             borderRadius: BorderRadius.all(Radius.circular(100)),
             surfaceTintColor: Theme.of(context).colorScheme.primary,
             itemBuilder: (BuildContext context) {
-              return !kDebugMode ? [] : [
+              return [
                 PopupMenuItem(
                   onTap: () {},
                   child: Row(
@@ -114,7 +114,7 @@ class _HomeScreenState extends State<HomeScreen> {
           slivers: [
             SliverList(
               delegate: SliverChildListDelegate([
-                if(kDebugMode) Column(
+                if(serversBox.getServer() == null && suggestionsBox.getSuggestion("backup").data != "hidden") Column(
                   children: [
                     Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -156,11 +156,13 @@ class _HomeScreenState extends State<HomeScreen> {
                                 height: const DynamicGridViewHeight.fixed(84),
                                 spaceBetween: 16,
                                 children: [
-                                  if(/*suggestions.contains("account")*/true) Suggestion(
+                                  if(suggestionsBox.getSuggestion("backup").data != "hidden") Suggestion(
                                       icon: Icon(Icons.cloud_outlined, color: Theme.of(context).textTheme.bodySmall?.color),
                                       title: "Turn on notes backup and synchronisation",
-                                      button: IconButton.filled(onPressed: () => {}, icon: const Icon(Icons.navigate_next)),
-                                      cancelButton: IconButton(icon: const Icon(Icons.close), onPressed: () => {}/*setState(() => suggestions.remove("account"))*/)
+                                      button: IconButton.filled(onPressed: () => context.push("/settings"), icon: const Icon(Icons.navigate_next)),
+                                      cancelButton: IconButton(icon: const Icon(Icons.close), onPressed: () => setState(() {
+                                        suggestionsBox.setSuggestion(suggestionsBox.getSuggestion("backup")..data = "hidden");
+                                      }))
                                   ),
                                 ]
                             ),
@@ -178,9 +180,9 @@ class _HomeScreenState extends State<HomeScreen> {
                 ListenableBuilder(
                     listenable: notesChangeNotifier,
                     builder: (BuildContext context, Widget? child) {
-                      List<Note> notes = notesBox.getAllLocalNotesSorted();
+                      List<NoteV1> notes = notesBox.getAllLocalNotesSorted();
                       List<Widget> notesWidgets = [];
-                      for(Note note in notes) {
+                      for(NoteV1 note in notes) {
                         notesWidgets.add(
                             Card(
                               color: ElevationOverlay.applySurfaceTint(

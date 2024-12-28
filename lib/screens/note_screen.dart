@@ -5,10 +5,10 @@ import 'package:notes/main.dart';
 import 'package:flutter/material.dart';
 import 'package:notes/misc.dart';
 
-import '../boxes/notes_box.dart';
+import '../boxes/notes_box_v1.dart';
 
 class NoteScreen extends StatefulWidget {
-  final Note note;
+  final NoteV1 note;
   const NoteScreen({super.key, required this.note});
 
   @override

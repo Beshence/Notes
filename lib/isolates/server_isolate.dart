@@ -2,7 +2,7 @@ import 'dart:isolate';
 
 import 'package:beshence_vault/beshence_vault.dart';
 
-import '../boxes/servers_box.dart';
+import '../boxes/servers_box_v1.dart';
 import '../misc.dart';
 
 class ServerIsolate extends IsolateHandler {
@@ -31,8 +31,8 @@ class ServerIsolate extends IsolateHandler {
           mainSendPort.send("pong");
           break;
         case "pull":
-          ServersBox serversBox = await ServersBox.create();
-          Server? server = serversBox.getServer();
+          ServersBoxV1 serversBox = await ServersBoxV1.create();
+          ServerV1? server = serversBox.getServer();
           if (server == null) return;
 
           BeshenceVault vault = BeshenceVault(address: server.address, token: server.token);
@@ -48,7 +48,6 @@ class ServerIsolate extends IsolateHandler {
               newEvents[eventIdToFetch] = event;
               eventIdToFetch = event["parent"];
             }
-            print(newEvents);
           }
       }
     });

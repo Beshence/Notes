@@ -1,7 +1,7 @@
 import 'package:beshence_vault/beshence_vault.dart';
 import 'package:flutter/material.dart';
 
-import '../boxes/servers_box.dart';
+import '../boxes/servers_box_v1.dart';
 import '../main.dart';
 
 class SettingsScreen extends StatefulWidget {
@@ -15,7 +15,7 @@ class SettingsScreen extends StatefulWidget {
 class _SettingsScreenState extends State<SettingsScreen> {
   final addressController = TextEditingController();
   final tokenController = TextEditingController();
-  Server? server = serversBox.getServer();
+  ServerV1? server = serversBox.getServer();
 
   @override
   void dispose() {
@@ -56,12 +56,12 @@ class _SettingsScreenState extends State<SettingsScreen> {
             ),
           ),
           MaterialButton(child: Text("Save"), onPressed: () async {
-            BeshenceVault vault = BeshenceVault(address: addressController.text);
+            BeshenceVault vault = BeshenceVault(address: addressController.text, token: tokenController.text);
             BeshenceVaultInfo vaultInfo = await vault.vaultInfo;
             String chainName = await vault.initChain("notes", ignoreAlreadyInitialized: true);
 
             if(server == null) {
-              server = Server(address: addressController.text, token: tokenController.text, order: 0, lastEventId: null);
+              server = ServerV1(address: addressController.text, token: tokenController.text, order: 0, lastEventId: null);
             } else {
               server!.address = addressController.text;
               server!.token = tokenController.text;

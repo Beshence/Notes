@@ -14,41 +14,42 @@ import 'package:objectbox/internal.dart'
 import 'package:objectbox/objectbox.dart' as obx;
 import 'package:objectbox_flutter_libs/objectbox_flutter_libs.dart';
 
-import 'boxes/notes_box.dart';
-import 'boxes/servers_box.dart';
+import 'boxes/notes_box_v1.dart';
+import 'boxes/servers_box_v1.dart';
+import 'boxes/suggestions_box_v1.dart';
 
 export 'package:objectbox/objectbox.dart'; // so that callers only have to import this file
 
 final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(1, 6853208522562835632),
-      name: 'Note',
-      lastPropertyId: const obx_int.IdUid(5, 7714588278876990602),
+      id: const obx_int.IdUid(1, 3290984917518088947),
+      name: 'NoteV1',
+      lastPropertyId: const obx_int.IdUid(5, 1757189922919297895),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 494810478302410003),
+            id: const obx_int.IdUid(1, 8798763573475164399),
             name: 'objectBoxId',
             type: 6,
             flags: 1),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 4739616300168934620),
+            id: const obx_int.IdUid(2, 5757723987102418290),
             name: 'id',
             type: 9,
             flags: 2080,
-            indexId: const obx_int.IdUid(1, 5991985622141510935)),
+            indexId: const obx_int.IdUid(1, 1444639913407998758)),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 6127474710925543039),
+            id: const obx_int.IdUid(3, 5946519103585441605),
             name: 'modifiedAt',
             type: 10,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 455367230729377427),
+            id: const obx_int.IdUid(4, 1670689885706187615),
             name: 'title',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 7714588278876990602),
+            id: const obx_int.IdUid(5, 1757189922919297895),
             name: 'text',
             type: 9,
             flags: 0)
@@ -56,36 +57,61 @@ final _entities = <obx_int.ModelEntity>[
       relations: <obx_int.ModelRelation>[],
       backlinks: <obx_int.ModelBacklink>[]),
   obx_int.ModelEntity(
-      id: const obx_int.IdUid(2, 2003018167598431437),
-      name: 'Server',
-      lastPropertyId: const obx_int.IdUid(5, 3727083843666273396),
+      id: const obx_int.IdUid(2, 2009859748547779222),
+      name: 'ServerV1',
+      lastPropertyId: const obx_int.IdUid(5, 240960398642257573),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(1, 3532112671275779811),
+            id: const obx_int.IdUid(1, 7192751140196517737),
             name: 'objectBoxId',
             type: 6,
             flags: 1),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(2, 6960729756549217577),
+            id: const obx_int.IdUid(2, 2614959410271389433),
             name: 'address',
             type: 9,
             flags: 2080,
-            indexId: const obx_int.IdUid(2, 7962817108933332397)),
+            indexId: const obx_int.IdUid(2, 880790731597365665)),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(3, 2219360930220070492),
+            id: const obx_int.IdUid(3, 7660462076586673278),
             name: 'token',
             type: 9,
             flags: 0),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(4, 775194115142312156),
+            id: const obx_int.IdUid(4, 536614793786255502),
             name: 'order',
             type: 6,
             flags: 40,
-            indexId: const obx_int.IdUid(3, 2877431388780479800)),
+            indexId: const obx_int.IdUid(3, 6295956280416461531)),
         obx_int.ModelProperty(
-            id: const obx_int.IdUid(5, 3727083843666273396),
+            id: const obx_int.IdUid(5, 240960398642257573),
             name: 'lastEventId',
+            type: 9,
+            flags: 0)
+      ],
+      relations: <obx_int.ModelRelation>[],
+      backlinks: <obx_int.ModelBacklink>[]),
+  obx_int.ModelEntity(
+      id: const obx_int.IdUid(3, 3396702135765581732),
+      name: 'SuggestionV1',
+      lastPropertyId: const obx_int.IdUid(3, 2814008788174982973),
+      flags: 0,
+      properties: <obx_int.ModelProperty>[
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(1, 731341226292811104),
+            name: 'objectBoxId',
+            type: 6,
+            flags: 1),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(2, 3244108132688636195),
+            name: 'name',
+            type: 9,
+            flags: 2080,
+            indexId: const obx_int.IdUid(4, 3141785940810868356)),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(3, 2814008788174982973),
+            name: 'data',
             type: 9,
             flags: 0)
       ],
@@ -128,8 +154,8 @@ Future<obx.Store> openStore(
 obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
       entities: _entities,
-      lastEntityId: const obx_int.IdUid(2, 2003018167598431437),
-      lastIndexId: const obx_int.IdUid(3, 2877431388780479800),
+      lastEntityId: const obx_int.IdUid(3, 3396702135765581732),
+      lastIndexId: const obx_int.IdUid(4, 3141785940810868356),
       lastRelationId: const obx_int.IdUid(0, 0),
       lastSequenceId: const obx_int.IdUid(0, 0),
       retiredEntityUids: const [],
@@ -141,15 +167,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
       version: 1);
 
   final bindings = <Type, obx_int.EntityDefinition>{
-    Note: obx_int.EntityDefinition<Note>(
+    NoteV1: obx_int.EntityDefinition<NoteV1>(
         model: _entities[0],
-        toOneRelations: (Note object) => [],
-        toManyRelations: (Note object) => {},
-        getId: (Note object) => object.objectBoxId,
-        setId: (Note object, int id) {
+        toOneRelations: (NoteV1 object) => [],
+        toManyRelations: (NoteV1 object) => {},
+        getId: (NoteV1 object) => object.objectBoxId,
+        setId: (NoteV1 object, int id) {
           object.objectBoxId = id;
         },
-        objectToFB: (Note object, fb.Builder fbb) {
+        objectToFB: (NoteV1 object, fb.Builder fbb) {
           final idOffset = fbb.writeString(object.id);
           final titleOffset =
               object.title == null ? null : fbb.writeString(object.title!);
@@ -177,7 +203,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
               .vTableGetNullable(buffer, rootOffset, 10);
           final textParam = const fb.StringReader(asciiOptimization: true)
               .vTableGetNullable(buffer, rootOffset, 12);
-          final object = Note(
+          final object = NoteV1(
               objectBoxId: objectBoxIdParam,
               id: idParam,
               modifiedAt: modifiedAtParam,
@@ -186,15 +212,15 @@ obx_int.ModelDefinition getObjectBoxModel() {
 
           return object;
         }),
-    Server: obx_int.EntityDefinition<Server>(
+    ServerV1: obx_int.EntityDefinition<ServerV1>(
         model: _entities[1],
-        toOneRelations: (Server object) => [],
-        toManyRelations: (Server object) => {},
-        getId: (Server object) => object.objectBoxId,
-        setId: (Server object, int id) {
+        toOneRelations: (ServerV1 object) => [],
+        toManyRelations: (ServerV1 object) => {},
+        getId: (ServerV1 object) => object.objectBoxId,
+        setId: (ServerV1 object, int id) {
           object.objectBoxId = id;
         },
-        objectToFB: (Server object, fb.Builder fbb) {
+        objectToFB: (ServerV1 object, fb.Builder fbb) {
           final addressOffset = fbb.writeString(object.address);
           final tokenOffset = fbb.writeString(object.token);
           final lastEventIdOffset = object.lastEventId == null
@@ -223,12 +249,45 @@ obx_int.ModelDefinition getObjectBoxModel() {
           final lastEventIdParam =
               const fb.StringReader(asciiOptimization: true)
                   .vTableGetNullable(buffer, rootOffset, 12);
-          final object = Server(
+          final object = ServerV1(
               objectBoxId: objectBoxIdParam,
               address: addressParam,
               token: tokenParam,
               order: orderParam,
               lastEventId: lastEventIdParam);
+
+          return object;
+        }),
+    SuggestionV1: obx_int.EntityDefinition<SuggestionV1>(
+        model: _entities[2],
+        toOneRelations: (SuggestionV1 object) => [],
+        toManyRelations: (SuggestionV1 object) => {},
+        getId: (SuggestionV1 object) => object.objectBoxId,
+        setId: (SuggestionV1 object, int id) {
+          object.objectBoxId = id;
+        },
+        objectToFB: (SuggestionV1 object, fb.Builder fbb) {
+          final nameOffset = fbb.writeString(object.name);
+          final dataOffset =
+              object.data == null ? null : fbb.writeString(object.data!);
+          fbb.startTable(4);
+          fbb.addInt64(0, object.objectBoxId);
+          fbb.addOffset(1, nameOffset);
+          fbb.addOffset(2, dataOffset);
+          fbb.finish(fbb.endTable());
+          return object.objectBoxId;
+        },
+        objectFromFB: (obx.Store store, ByteData fbData) {
+          final buffer = fb.BufferContext(fbData);
+          final rootOffset = buffer.derefObject(0);
+          final objectBoxIdParam =
+              const fb.Int64Reader().vTableGet(buffer, rootOffset, 4, 0);
+          final nameParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGet(buffer, rootOffset, 6, '');
+          final dataParam = const fb.StringReader(asciiOptimization: true)
+              .vTableGetNullable(buffer, rootOffset, 8);
+          final object = SuggestionV1(
+              objectBoxId: objectBoxIdParam, name: nameParam, data: dataParam);
 
           return object;
         })
@@ -237,46 +296,62 @@ obx_int.ModelDefinition getObjectBoxModel() {
   return obx_int.ModelDefinition(model, bindings);
 }
 
-/// [Note] entity fields to define ObjectBox queries.
-class Note_ {
-  /// See [Note.objectBoxId].
+/// [NoteV1] entity fields to define ObjectBox queries.
+class NoteV1_ {
+  /// See [NoteV1.objectBoxId].
   static final objectBoxId =
-      obx.QueryIntegerProperty<Note>(_entities[0].properties[0]);
+      obx.QueryIntegerProperty<NoteV1>(_entities[0].properties[0]);
 
-  /// See [Note.id].
-  static final id = obx.QueryStringProperty<Note>(_entities[0].properties[1]);
+  /// See [NoteV1.id].
+  static final id = obx.QueryStringProperty<NoteV1>(_entities[0].properties[1]);
 
-  /// See [Note.modifiedAt].
+  /// See [NoteV1.modifiedAt].
   static final modifiedAt =
-      obx.QueryDateProperty<Note>(_entities[0].properties[2]);
+      obx.QueryDateProperty<NoteV1>(_entities[0].properties[2]);
 
-  /// See [Note.title].
+  /// See [NoteV1.title].
   static final title =
-      obx.QueryStringProperty<Note>(_entities[0].properties[3]);
+      obx.QueryStringProperty<NoteV1>(_entities[0].properties[3]);
 
-  /// See [Note.text].
-  static final text = obx.QueryStringProperty<Note>(_entities[0].properties[4]);
+  /// See [NoteV1.text].
+  static final text =
+      obx.QueryStringProperty<NoteV1>(_entities[0].properties[4]);
 }
 
-/// [Server] entity fields to define ObjectBox queries.
-class Server_ {
-  /// See [Server.objectBoxId].
+/// [ServerV1] entity fields to define ObjectBox queries.
+class ServerV1_ {
+  /// See [ServerV1.objectBoxId].
   static final objectBoxId =
-      obx.QueryIntegerProperty<Server>(_entities[1].properties[0]);
+      obx.QueryIntegerProperty<ServerV1>(_entities[1].properties[0]);
 
-  /// See [Server.address].
+  /// See [ServerV1.address].
   static final address =
-      obx.QueryStringProperty<Server>(_entities[1].properties[1]);
+      obx.QueryStringProperty<ServerV1>(_entities[1].properties[1]);
 
-  /// See [Server.token].
+  /// See [ServerV1.token].
   static final token =
-      obx.QueryStringProperty<Server>(_entities[1].properties[2]);
+      obx.QueryStringProperty<ServerV1>(_entities[1].properties[2]);
 
-  /// See [Server.order].
+  /// See [ServerV1.order].
   static final order =
-      obx.QueryIntegerProperty<Server>(_entities[1].properties[3]);
+      obx.QueryIntegerProperty<ServerV1>(_entities[1].properties[3]);
 
-  /// See [Server.lastEventId].
+  /// See [ServerV1.lastEventId].
   static final lastEventId =
-      obx.QueryStringProperty<Server>(_entities[1].properties[4]);
+      obx.QueryStringProperty<ServerV1>(_entities[1].properties[4]);
+}
+
+/// [SuggestionV1] entity fields to define ObjectBox queries.
+class SuggestionV1_ {
+  /// See [SuggestionV1.objectBoxId].
+  static final objectBoxId =
+      obx.QueryIntegerProperty<SuggestionV1>(_entities[2].properties[0]);
+
+  /// See [SuggestionV1.name].
+  static final name =
+      obx.QueryStringProperty<SuggestionV1>(_entities[2].properties[1]);
+
+  /// See [SuggestionV1.data].
+  static final data =
+      obx.QueryStringProperty<SuggestionV1>(_entities[2].properties[2]);
 }
