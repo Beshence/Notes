@@ -38,7 +38,7 @@ class _NoteScreenState extends State<NoteScreen> {
       widget.note.text = text;
     }
     if(flag) {
-      widget.note.modifiedAt = DateTime.timestamp();
+      widget.note.modifiedAt = DateTime.fromMillisecondsSinceEpoch((DateTime.timestamp().millisecondsSinceEpoch ~/ 1000) * 1000);
       localNotesBox.updateLocalNote(widget.note);
       notesChangeNotifier.updateNotes();
     }

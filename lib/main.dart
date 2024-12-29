@@ -41,7 +41,7 @@ GoRouter router = GoRouter(
         GoRoute(
           path: 'note/:noteId',
           builder: (BuildContext context, GoRouterState state) {
-            return NoteScreen(note: localNotesBox.getLocalNote(state.pathParameters["noteId"]!));
+            return NoteScreen(note: localNotesBox.getLocalNote(state.pathParameters["noteId"]!)!);
           },
         ),
         GoRoute(

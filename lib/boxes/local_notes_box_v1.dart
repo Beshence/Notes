@@ -28,7 +28,11 @@ class LocalNotesBoxV1 {
   List<LocalNoteV1> getAllLocalNotesSorted() => (_localNotesBox.query()..order(LocalNoteV1_.modifiedAt, flags: Order.descending)).build().find();
   void addLocalNote(LocalNoteV1 note) => _localNotesBox.put(note, mode: PutMode.insert);
   void updateLocalNote(LocalNoteV1 note) => _localNotesBox.put(note, mode: PutMode.update);
-  LocalNoteV1 getLocalNote(String id) => _localNotesBox.query(LocalNoteV1_.id.equals(id)).build().find()[0];
+  LocalNoteV1? getLocalNote(String id) {
+    var result = _localNotesBox.query(LocalNoteV1_.id.equals(id)).build().find();
+    if(result.isNotEmpty) return result[0];
+    return null;
+  }
   void deleteLocalNote(LocalNoteV1 note) => _localNotesBox.remove(note.objectBoxId);
   int get localNotesLength => _localNotesBox.count();
 }
