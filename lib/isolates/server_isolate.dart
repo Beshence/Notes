@@ -72,7 +72,7 @@ class ServerIsolate extends IsolateHandler {
                   eventIdToFetch != null) {
                 final event = await chain.getEvent(eventIdToFetch);
                 newEvents[eventIdToFetch] = event;
-                eventIdToFetch = event["parent"];
+                eventIdToFetch = event["prev"];
                 if (eventIdToFetch != null) newEventsIds.add(eventIdToFetch);
               }
               newEventsIds.remove(localLastEventId);
@@ -190,7 +190,7 @@ class ServerIsolate extends IsolateHandler {
                     "title": localNote.title,
                     "text": localNote.text
                   },
-                  if (serverLastEventId != null) "parent": serverLastEventId
+                  if (serverLastEventId != null) "prev": serverLastEventId
                 });
                 serverNotesBox.addServerNote(ServerNoteV1(id: localNote.id, createdAt: DateTime.fromMillisecondsSinceEpoch((localNote.createdAt.millisecondsSinceEpoch ~/ 1000) * 1000), modifiedAt: DateTime.fromMillisecondsSinceEpoch((localNote.modifiedAt.millisecondsSinceEpoch ~/ 1000) * 1000), title: localNote.title, text: localNote.text));
                 localInfoAboutServer.lastEventId = eventId;
@@ -215,7 +215,7 @@ class ServerIsolate extends IsolateHandler {
                       if(serverNote.text != localNote.text) "text": localNote
                           .text
                     },
-                    if (serverLastEventId != null) "parent": serverLastEventId
+                    if (serverLastEventId != null) "prev": serverLastEventId
                   });
                   serverNote.modifiedAt = DateTime.fromMillisecondsSinceEpoch((localNote.modifiedAt.millisecondsSinceEpoch ~/ 1000) * 1000);
                   if(serverNote.title != localNote.title) serverNote.title = localNote.title;
@@ -239,7 +239,7 @@ class ServerIsolate extends IsolateHandler {
                 "data": {
                   "note_id": serverNote.id
                 },
-                if (serverLastEventId != null) "parent": serverLastEventId
+                if (serverLastEventId != null) "prev": serverLastEventId
               });
               serverNotesBox.deleteServerNote(serverNote);
               localInfoAboutServer.lastEventId = eventId;
