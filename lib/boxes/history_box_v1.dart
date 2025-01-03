@@ -47,11 +47,15 @@ class HistoryBoxV1 {
   void setEntryEventId(HistoryEntryV1 entry, String eventId) =>
       _historyBox.put(entry..chainEventId = eventId, mode: PutMode.update);
 
-  List<HistoryEntryV1> getUpdatesFromTimestamp(String noteId,
+  /*List<HistoryEntryV1> getUpdatesFromTimestamp(String noteId,
       DateTime timestamp) => (_historyBox.query(
       HistoryEntryV1_.type.equals("update_note").and(
           HistoryEntryV1_.noteModifiedAt.greaterOrEqualDate(timestamp)).and(HistoryEntryV1_.noteId.equals(noteId)))
-    ..order(HistoryEntryV1_.noteModifiedAt)).build().find();
+    ..order(HistoryEntryV1_.noteModifiedAt)).build().find();*/
+
+  List<HistoryEntryV1> getEntriesOf(String noteId) => (_historyBox.query(
+        HistoryEntryV1_.noteId.equals(noteId))
+      ..order(HistoryEntryV1_.noteModifiedAt)).build().find();
 
   List<HistoryEntryV1> getAllNotAppliedEntries() =>
       (_historyBox.query(HistoryEntryV1_.applied.equals(false))

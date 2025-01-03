@@ -125,16 +125,41 @@ class ServerIsolate extends IsolateHandler {
                   continue;
                 }
                 NoteV1 note = notesBox.getNote(entry.noteId)!;
-                // check if note update event is newer than note modifiedAt
+                // check if local note update event is newer than note modifiedAt
                 if(note.modifiedAt.isAfter(entry.noteModifiedAt)) {
-                  List<HistoryEntryV1> updates = historyBox.getUpdatesFromTimestamp(note.id, entry.noteModifiedAt);
-                  for(HistoryEntryV1 update in updates) {
-                    // queue of updates
-                    if(update.noteTitle != null) note.title = update.noteTitle;
-                    if(update.noteText != null) note.text = update.noteText;
-                    note.modifiedAt = update.noteModifiedAt;
+                  List<HistoryEntryV1> entries = historyBox.getEntriesOf(note.id);
+                  print("hello! ${entries.length}");
+                  bool deleted = false;
+                  for(HistoryEntryV1 entry in entries) {
+                    print("... ${entry.type} ${entry.noteModifiedAt}");
+                    // recreate event from the start
+                    if(entry.type == "create_note") {
+                      note.modifiedAt = entry.noteModifiedAt;
+                      continue;
+                    }
+                    if(entry.type == "update_note") {
+                      if(entry.noteTitle != null) note.title = entry.noteTitle;
+                      if(entry.noteText != null) note.text = entry.noteText;
+                      note.modifiedAt = entry.noteModifiedAt;
+                      continue;
+                    }
+                    if(entry.type == "delete_note") {
+                      deleted = true;
+                      break;
+                    }
                   }
-                  notesBox.updateNote(note);
+                  if(deleted) {
+                    // check if note is gone already
+                    if(notesBox.getNote(entry.noteId) == null) {
+                      // do nothing
+                    } else {
+                      // else delete it
+                      notesBox.deleteNote(notesBox.getNote(entry.noteId)!);
+                    }
+                  } else {
+                    // update it to this event
+                    notesBox.updateNote(note);
+                  }
                   historyBox.setEntryAppliedToTrue(entry);
                   continue;
                 }
