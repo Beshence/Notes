@@ -20,8 +20,8 @@ class ServerIsolate extends IsolateHandler {
           break;
         case "pulled":
           if(args[0] == "new") {
-            print("PULLED NEW. SENDING PUSH ONE");
             notesChangeNotifier.updateNotes();
+            print("PULLED NEW. SENDING PUSH ONE");
           } else {
             print("DIDN'T PULL ANYTHING. SENDING PUSH ONE");
           }
