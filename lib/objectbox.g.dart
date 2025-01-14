@@ -140,7 +140,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
       id: const obx_int.IdUid(6, 1147931286378033022),
       name: 'NoteV1',
-      lastPropertyId: const obx_int.IdUid(6, 5777128798332125281),
+      lastPropertyId: const obx_int.IdUid(7, 7445643926305920763),
       flags: 0,
       properties: <obx_int.ModelProperty>[
         obx_int.ModelProperty(
@@ -173,6 +173,11 @@ final _entities = <obx_int.ModelEntity>[
             id: const obx_int.IdUid(6, 5777128798332125281),
             name: 'text',
             type: 9,
+            flags: 0),
+        obx_int.ModelProperty(
+            id: const obx_int.IdUid(7, 7445643926305920763),
+            name: 'deleted',
+            type: 1,
             flags: 0)
       ],
       relations: <obx_int.ModelRelation>[],
@@ -405,13 +410,14 @@ obx_int.ModelDefinition getObjectBoxModel() {
               object.title == null ? null : fbb.writeString(object.title!);
           final textOffset =
               object.text == null ? null : fbb.writeString(object.text!);
-          fbb.startTable(7);
+          fbb.startTable(8);
           fbb.addInt64(0, object.objectBoxId);
           fbb.addOffset(1, idOffset);
           fbb.addInt64(2, object.createdAt.millisecondsSinceEpoch);
           fbb.addInt64(3, object.modifiedAt.millisecondsSinceEpoch);
           fbb.addOffset(4, titleOffset);
           fbb.addOffset(5, textOffset);
+          fbb.addBool(6, object.deleted);
           fbb.finish(fbb.endTable());
           return object.objectBoxId;
         },
@@ -430,13 +436,16 @@ obx_int.ModelDefinition getObjectBoxModel() {
               .vTableGetNullable(buffer, rootOffset, 12);
           final textParam = const fb.StringReader(asciiOptimization: true)
               .vTableGetNullable(buffer, rootOffset, 14);
+          final deletedParam =
+              const fb.BoolReader().vTableGet(buffer, rootOffset, 16, false);
           final object = NoteV1(
               objectBoxId: objectBoxIdParam,
               id: idParam,
               createdAt: createdAtParam,
               modifiedAt: modifiedAtParam,
               title: titleParam,
-              text: textParam);
+              text: textParam,
+              deleted: deletedParam);
 
           return object;
         })
@@ -546,4 +555,8 @@ class NoteV1_ {
   /// See [NoteV1.text].
   static final text =
       obx.QueryStringProperty<NoteV1>(_entities[3].properties[5]);
+
+  /// See [NoteV1.deleted].
+  static final deleted =
+      obx.QueryBooleanProperty<NoteV1>(_entities[3].properties[6]);
 }

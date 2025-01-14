@@ -24,10 +24,10 @@ class NotesBoxV1 {
     return NotesBoxV1._create(store);
   }
 
-  List<NoteV1> getAllNotes() => _notesBox.getAll();
+  List<NoteV1> getAllNotes() => (_notesBox.query(NoteV1_.deleted.equals(false))).build().find();
 
   List<NoteV1> getAllNotesSorted() =>
-      (_notesBox.query()
+      (_notesBox.query(NoteV1_.deleted.equals(false))
         ..order(NoteV1_.modifiedAt, flags: Order.descending)).build().find();
 
   void addNote(NoteV1 note) => _notesBox.put(note, mode: PutMode.insert);
@@ -40,7 +40,7 @@ class NotesBoxV1 {
     return null;
   }
 
-  void deleteNote(NoteV1 note) => _notesBox.remove(note.objectBoxId);
+  void deleteNote(NoteV1 note) => updateNote(note..deleted = true);
 
   int get notesLength => _notesBox.count();
 }
@@ -55,6 +55,7 @@ class NoteV1 {
   DateTime modifiedAt;
   String? title;
   String? text;
+  bool deleted;
 
-  NoteV1({this.objectBoxId = 0, required this.id, required this.createdAt, required this.modifiedAt, required this.title, required this.text});
+  NoteV1({this.objectBoxId = 0, required this.id, required this.createdAt, required this.modifiedAt, required this.title, required this.text, this.deleted = false});
 }
