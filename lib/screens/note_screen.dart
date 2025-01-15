@@ -120,7 +120,7 @@ class _NoteScreenState extends State<NoteScreen> {
                         noteModifiedAt: DateTime.timestamp(),
                         chainEventId: null,
                         applied: true);
-                    notesBox.deleteNote(widget.note);
+                    notesBox.updateNote(widget.note..deleted = true);
                     historyBox.addEntry(entry);
                     notesChangeNotifier.updateNotes();
                     context.pop("delete");

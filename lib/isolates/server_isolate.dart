@@ -16,16 +16,17 @@ class ServerIsolate extends IsolateHandler {
       var command = args.removeAt(0);
       switch(command) {
         case "pong":
-          isolateSendPort.send("pull");
+          isolateSendPort.send("pullOne");
           break;
-        case "pulled":
+        case "pulledOne":
           if(args[0] == "new") {
             notesChangeNotifier.updateNotes();
-            print("PULLED NEW. SENDING PUSH ONE");
+            print("PULLED NEW. PULLING AGAIN NOW");
+            isolateSendPort.send("pullOne");
           } else {
             print("DIDN'T PULL ANYTHING. SENDING PUSH ONE");
+            isolateSendPort.send("pushOne");
           }
-          isolateSendPort.send("pushOne");
           break;
         case "pushedOne":
           if(args[0] == "new") {
@@ -33,8 +34,8 @@ class ServerIsolate extends IsolateHandler {
             print("PUSHED ONE. PUSH AGAIN NOW");
             isolateSendPort.send("pushOne");
           } else {
-            print("DIDN'T PUSH ANYTHING. SENDING PULL");
-            Future.delayed(Duration(seconds: 3), () => isolateSendPort.send("pull"));
+            print("DIDN'T PUSH ANYTHING. SENDING PULL ONE");
+            Future.delayed(Duration(seconds: 3), () => isolateSendPort.send("pullOne"));
           }
       }
     });
@@ -55,7 +56,7 @@ class ServerIsolate extends IsolateHandler {
         case "ping":
           mainSendPort.send("pong");
           break;
-        case "pull":
+        case "pullOne":
           try {
             ServerV1? localInfoAboutServer = serversBox.getServer();
             if (localInfoAboutServer == null) return;
@@ -67,127 +68,95 @@ class ServerIsolate extends IsolateHandler {
             final BeshenceChain chain = vault.getChain("notes");
             final String? serverLastEventId = await chain.lastEventId;
 
-            bool newEvents = false;
-            // 1. first of all we gather new events from the server if there are any
-            while(localLastEventId != serverLastEventId && serverLastEventId != null) {
-              // 1.1. we get the next event's id of already locally processed event
-              String? eventIdToFetch = localLastEventId != null
-                  ? (await chain.getEvent(localLastEventId))["next"]
-                  : (await chain.firstEventId)!;
 
-              // 1.2. we process this event and create history entry out of it
-              if (eventIdToFetch == null) break;
-              newEvents = true;
-              dynamic event = await chain.getEvent(eventIdToFetch);
-              HistoryEntryV1 historyEntry = HistoryEntryV1(
-                  noteId: event["data"]["note_id"],
-                  type: event["type"],
-                  noteTitle: event["data"]["title"],
-                  noteText: event["data"]["text"],
-                  noteCreatedAt: event["data"]["created_at"] != null ? DateTime.fromMillisecondsSinceEpoch(event["data"]["created_at"]) : null,
-                  noteModifiedAt: DateTime.fromMillisecondsSinceEpoch(event["data"]["modified_at"]),
-                  chainEventId: eventIdToFetch,
-                  applied: false
-              );
-
-              // 1.3. then we add to our history
-              historyBox.addEntry(historyEntry);
-
-              localLastEventId = eventIdToFetch;
-              localInfoAboutServer.lastEventId = localLastEventId;
-              serversBox.setServer(localInfoAboutServer);
+            // 1. first we find out if there's a need to get new event
+            if(!(localLastEventId != serverLastEventId && serverLastEventId != null)) {
+              mainSendPort.send("pulledOne.noNew");
+              return;
             }
 
-            assert(serverLastEventId == localLastEventId);
+            // 1.1. we get the next event's id of already locally processed event
+            String eventIdToFetch = localLastEventId != null
+                ? (await chain.getEvent(localLastEventId))["next"]
+                : (await chain.firstEventId)!;
 
-            // 2. we apply changes to the notes box
-            for(HistoryEntryV1 entry in historyBox.getAllNotAppliedEntries()) {
-              if(entry.type == "create_note") {
-                // check if note is already created
-                if(notesBox.getNote(entry.noteId) != null) {
-                  historyBox.setEntryAppliedToTrue(entry);
-                  continue;
-                }
-                // else create new note
+            // 1.2. we get this event and create history entry out of it
+            dynamic event = await chain.getEvent(eventIdToFetch);
+            HistoryEntryV1 historyEntry = HistoryEntryV1(
+                noteId: event["data"]["note_id"],
+                type: event["type"],
+                noteTitle: event["data"]["title"],
+                noteText: event["data"]["text"],
+                noteCreatedAt: event["data"]["created_at"] != null ? DateTime.fromMillisecondsSinceEpoch(event["data"]["created_at"]) : null,
+                noteModifiedAt: DateTime.fromMillisecondsSinceEpoch(event["data"]["modified_at"]),
+                chainEventId: eventIdToFetch,
+                applied: false
+            );
+
+            // 1.3. then we add entry to our history
+            historyBox.addEntry(historyEntry);
+
+            // 1.4. and we update info
+            localLastEventId = eventIdToFetch;
+            localInfoAboutServer.lastEventId = localLastEventId;
+            serversBox.setServer(localInfoAboutServer);
+
+            // 2. we apply this history entry to our notes
+            if(historyEntry.type == "create_note") {
+              if(notesBox.getNote(historyEntry.noteId) == null) {
+                // create new note
                 NoteV1 newNote = NoteV1(
-                    id: entry.noteId,
-                    createdAt: entry.noteCreatedAt!,
-                    modifiedAt: entry.noteModifiedAt,
-                    title: entry.noteTitle,
-                    text: entry.noteText
+                    id: historyEntry.noteId,
+                    createdAt: historyEntry.noteCreatedAt!,
+                    modifiedAt: historyEntry.noteModifiedAt,
+                    title: historyEntry.noteTitle,
+                    text: historyEntry.noteText
                 );
                 notesBox.addNote(newNote);
-                historyBox.setEntryAppliedToTrue(entry);
-              } else if(entry.type == "update_note") {
-                // check if note is gone
-                if(notesBox.getNote(entry.noteId) == null) {
-                  historyBox.setEntryAppliedToTrue(entry);
-                  continue;
-                }
-                NoteV1 note = notesBox.getNote(entry.noteId)!;
-                // check if local note update event is newer than note modifiedAt
-                if(note.modifiedAt.isAfter(entry.noteModifiedAt)) {
-                  List<HistoryEntryV1> entries = historyBox.getEntriesOf(note.id);
-                  print("hello! ${entries.length}");
-                  bool deleted = false;
-                  for(HistoryEntryV1 entry in entries) {
-                    print("... ${entry.type} ${entry.noteModifiedAt}");
-                    // recreate event from the start
-                    if(entry.type == "create_note") {
-                      note.modifiedAt = entry.noteModifiedAt;
-                      continue;
-                    }
-                    if(entry.type == "update_note") {
-                      if(entry.noteTitle != null) note.title = entry.noteTitle;
-                      if(entry.noteText != null) note.text = entry.noteText;
-                      note.modifiedAt = entry.noteModifiedAt;
-                      continue;
-                    }
-                    if(entry.type == "delete_note") {
-                      deleted = true;
-                      break;
-                    }
-                  }
-                  if(deleted) {
-                    // check if note is gone already
-                    if(notesBox.getNote(entry.noteId) == null) {
-                      // do nothing
-                    } else {
-                      // else delete it
-                      notesBox.deleteNote(notesBox.getNote(entry.noteId)!);
-                    }
-                  } else {
-                    // update it to this event
-                    notesBox.updateNote(note);
-                  }
-                  historyBox.setEntryAppliedToTrue(entry);
-                  continue;
-                }
-                // else update note
-                if(entry.noteTitle != null) note.title = entry.noteTitle;
-                if(entry.noteText != null) note.text = entry.noteText;
-                note.modifiedAt = entry.noteModifiedAt;
-                notesBox.updateNote(note);
-                historyBox.setEntryAppliedToTrue(entry);
-              } else if(entry.type == "delete_note") {
-                // check if note is gone already
-                if(notesBox.getNote(entry.noteId) == null) {
-                  historyBox.setEntryAppliedToTrue(entry);
-                  continue;
-                }
-                // else delete it
-                notesBox.deleteNote(notesBox.getNote(entry.noteId)!);
-                historyBox.setEntryAppliedToTrue(entry);
               }
-            }
+            } else if(historyEntry.type == "update_note") {
+              NoteV1? note = notesBox.getNote(historyEntry.noteId);
+              if(note != null) {
+                // check if local note update event is newer than note's modifiedAt
+                if(note.modifiedAt.isAfter(historyEntry.noteModifiedAt)) {
+                  List<HistoryEntryV1> noteHistoryEntries = historyBox.getEntriesOf(
+                      note.id);
 
-            mainSendPort.send("pulled.${newEvents ? "new" : "noNew"}");
+                  for (HistoryEntryV1 noteHistoryEntry in noteHistoryEntries) {
+                    // recreate event from the start
+                    if (noteHistoryEntry.type == "create_note") {
+                      note.modifiedAt = noteHistoryEntry.noteModifiedAt;
+                    }
+                    else if (noteHistoryEntry.type == "update_note") {
+                      if (noteHistoryEntry.noteTitle != null) note.title = noteHistoryEntry.noteTitle;
+                      if (noteHistoryEntry.noteText != null) note.text = noteHistoryEntry.noteText;
+                      note.modifiedAt = noteHistoryEntry.noteModifiedAt;
+                    }
+                    else if (noteHistoryEntry.type == "delete_note") {
+                      note.modifiedAt = noteHistoryEntry.noteModifiedAt;
+                      note.deleted = true;
+                    }
+                  }
+                } else {
+                  if(historyEntry.noteTitle != null) note.title = historyEntry.noteTitle;
+                  if(historyEntry.noteText != null) note.text = historyEntry.noteText;
+                  note.modifiedAt = historyEntry.noteModifiedAt;
+                }
+                notesBox.updateNote(note);
+              }
+            } else if(historyEntry.type == "delete_note") {
+              NoteV1 note = notesBox.getNote(historyEntry.noteId)!;
+              if(!note.deleted) notesBox.updateNote(note..deleted = true);
+            }
+            historyBox.setEntryAppliedToTrue(historyEntry);
+
+            mainSendPort.send("pulledOne.new");
           } on BeshenceVaultException catch(e) {
             print("error while pulling:");
             print(e.httpCode);
             print(e.name);
             print(e.description);
-            mainSendPort.send("pulled.error");
+            mainSendPort.send("pulledOne.error");
           }
           break;
         case "pushOne":

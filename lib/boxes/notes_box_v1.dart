@@ -40,8 +40,6 @@ class NotesBoxV1 {
     return null;
   }
 
-  void deleteNote(NoteV1 note) => updateNote(note..deleted = true);
-
   int get notesLength => _notesBox.count();
 }
 
