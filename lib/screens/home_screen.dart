@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:notes/boxes/history_box_v1.dart';
 import 'package:notes/main.dart';
 import 'package:uuid/uuid.dart';
 
+import '../boxes/events_box_v1.dart';
 import '../boxes/notes_box_v1.dart';
 import '../misc.dart';
 import '../widgets/dynamic_grid.dart';
@@ -19,23 +19,16 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   void _openNewNote() {
+    DateTime timestamp = DateTime.timestamp();
     NoteV1 note = NoteV1(
         id: Uuid().v4(),
-        createdAt: DateTime.timestamp(),
-        modifiedAt: DateTime.timestamp(),
+        createdAt: timestamp,
+        modifiedAt: timestamp,
         title: null,
         text: null);
-    HistoryEntryV1 entry = HistoryEntryV1(
-        noteId: note.id,
-        type: "create_note",
-        noteTitle: null,
-        noteText: null,
-        noteCreatedAt: note.createdAt,
-        noteModifiedAt: note.modifiedAt,
-        chainEventId: null,
-        applied: true);
+    CreateNoteEvent event = CreateNoteEvent(noteId: note.id, noteCreatedAt: timestamp, applied: true);
     notesBox.addNote(note);
-    historyBox.addEntry(entry);
+    eventsBox.addEvent(event);
     notesChangeNotifier.updateNotes();
     context.push('/note/${note.id}');
   }
@@ -270,14 +263,14 @@ class _HomeScreenState extends State<HomeScreen> {
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    if (note.title != null)
+                                    if (note.title != null && note.title != "")
                                       Text(
                                         note.title!,
                                         style: TextStyle(fontSize: 18),
                                       ),
-                                    if (note.text != null && note.title != null)
+                                    if (note.text != null && note.text != "" && note.title != null && note.title != "")
                                       SizedBox.fromSize(size: Size(0, 12)),
-                                    if (note.text != null)
+                                    if (note.text != null && note.text != "")
                                       Text(
                                         note.text!,
                                         style: TextStyle(fontSize: 14),

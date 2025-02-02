@@ -1,9 +1,9 @@
 import 'dart:isolate';
 
 import 'package:beshence_vault/beshence_vault.dart';
+import 'package:notes/boxes/events_box_v1.dart';
 import 'package:uuid/uuid.dart';
 
-import '../boxes/history_box_v1.dart';
 import '../boxes/notes_box_v1.dart';
 import '../boxes/servers_box_v1.dart';
 import '../misc.dart';
@@ -47,7 +47,7 @@ class ServerIsolate extends IsolateHandler {
   Future<void> isolate(ReceivePort isolateReceivePort, SendPort mainSendPort) async {
     ServersBoxV1 serversBox = await ServersBoxV1.create();
     NotesBoxV1 notesBox = await NotesBoxV1.create();
-    HistoryBoxV1 historyBox = await HistoryBoxV1.create();
+    EventsBoxV1 eventsBox = await EventsBoxV1.create();
 
     isolateReceivePort.listen((message) async {
       List<String> args = message.split(".");
@@ -68,7 +68,6 @@ class ServerIsolate extends IsolateHandler {
             final BeshenceChain chain = vault.getChain("notes");
             final String? serverLastEventId = await chain.lastEventId;
 
-
             // 1. first we find out if there's a need to get new event
             if(!(localLastEventId != serverLastEventId && serverLastEventId != null)) {
               mainSendPort.send("pulledOne.noNew");
@@ -80,21 +79,27 @@ class ServerIsolate extends IsolateHandler {
                 ? (await chain.getEvent(localLastEventId))["next"]
                 : (await chain.firstEventId)!;
 
-            // 1.2. we get this event and create history entry out of it
-            dynamic event = await chain.getEvent(eventIdToFetch);
-            HistoryEntryV1 historyEntry = HistoryEntryV1(
-                noteId: event["data"]["note_id"],
-                type: event["type"],
-                noteTitle: event["data"]["title"],
-                noteText: event["data"]["text"],
-                noteCreatedAt: event["data"]["created_at"] != null ? DateTime.fromMillisecondsSinceEpoch(event["data"]["created_at"]) : null,
-                noteModifiedAt: DateTime.fromMillisecondsSinceEpoch(event["data"]["modified_at"]),
-                chainEventId: eventIdToFetch,
-                applied: false
-            );
+            // 1.2. we get this event as JSON and convert to the Event class
+            dynamic jsonEvent = await chain.getEvent(eventIdToFetch);
 
-            // 1.3. then we add entry to our history
-            historyBox.addEntry(historyEntry);
+            late EventV1 event;
+            switch(jsonEvent["type"]) {
+              case "create_note":
+                event = CreateNoteEvent.fromJson(jsonEvent: jsonEvent);
+                break;
+              case "update_note":
+                event = UpdateNoteEvent.fromJson(jsonEvent: jsonEvent);
+                break;
+              case "delete_note":
+                event = DeleteNoteEvent.fromJson(jsonEvent: jsonEvent);
+                break;
+              default:
+                throw Exception();
+            }
+            event.id = eventIdToFetch;
+
+            // 1.3. then we add event to our local chain
+            eventsBox.addEvent(event);
 
             // 1.4. and we update info
             localLastEventId = eventIdToFetch;
@@ -102,53 +107,59 @@ class ServerIsolate extends IsolateHandler {
             serversBox.setServer(localInfoAboutServer);
 
             // 2. we apply this history entry to our notes
-            if(historyEntry.type == "create_note") {
-              if(notesBox.getNote(historyEntry.noteId) == null) {
+            if(event is CreateNoteEvent) {
+              if(notesBox.getNote(event.noteId) == null) {
                 // create new note
                 NoteV1 newNote = NoteV1(
-                    id: historyEntry.noteId,
-                    createdAt: historyEntry.noteCreatedAt!,
-                    modifiedAt: historyEntry.noteModifiedAt,
-                    title: historyEntry.noteTitle,
-                    text: historyEntry.noteText
+                    id: event.noteId,
+                    createdAt: event.noteCreatedAt,
+                    modifiedAt: event.noteCreatedAt,
+                    title: null,
+                    text: null
                 );
                 notesBox.addNote(newNote);
               }
-            } else if(historyEntry.type == "update_note") {
-              NoteV1? note = notesBox.getNote(historyEntry.noteId);
+            } else if(event is UpdateNoteEvent) {
+              NoteV1? note = notesBox.getNote(event.noteId);
               if(note != null) {
                 // check if local note update event is newer than note's modifiedAt
-                if(note.modifiedAt.isAfter(historyEntry.noteModifiedAt)) {
-                  List<HistoryEntryV1> noteHistoryEntries = historyBox.getEntriesOf(
-                      note.id);
+                if(note.modifiedAt.isAfter(event.noteUpdatedAt)) {
+                  List<EventV1> noteEvents = eventsBox.getEventsOfNote(note.id);
 
-                  for (HistoryEntryV1 noteHistoryEntry in noteHistoryEntries) {
+                  for (EventV1 noteEvent in noteEvents) {
                     // recreate event from the start
-                    if (noteHistoryEntry.type == "create_note") {
-                      note.modifiedAt = noteHistoryEntry.noteModifiedAt;
-                    }
-                    else if (noteHistoryEntry.type == "update_note") {
-                      if (noteHistoryEntry.noteTitle != null) note.title = noteHistoryEntry.noteTitle;
-                      if (noteHistoryEntry.noteText != null) note.text = noteHistoryEntry.noteText;
-                      note.modifiedAt = noteHistoryEntry.noteModifiedAt;
-                    }
-                    else if (noteHistoryEntry.type == "delete_note") {
-                      note.modifiedAt = noteHistoryEntry.noteModifiedAt;
+                    if(noteEvent.type == "create_note") {
+                      noteEvent = noteEvent as CreateNoteEvent;
+                      note.createdAt = noteEvent.noteCreatedAt;
+                      note.modifiedAt = noteEvent.noteCreatedAt;
+                    } else if(noteEvent.type == "update_note") {
+                      noteEvent = noteEvent as UpdateNoteEvent;
+                      if (noteEvent.noteTitle != null) note.title = noteEvent.noteTitle;
+                      if (noteEvent.noteText != null) note.text = noteEvent.noteText;
+                      note.modifiedAt = noteEvent.noteUpdatedAt;
+                    } else if(noteEvent.type == "delete_note") {
+                      noteEvent = noteEvent as DeleteNoteEvent;
+                      note.modifiedAt = noteEvent.noteDeletedAt;
                       note.deleted = true;
                     }
                   }
                 } else {
-                  if(historyEntry.noteTitle != null) note.title = historyEntry.noteTitle;
-                  if(historyEntry.noteText != null) note.text = historyEntry.noteText;
-                  note.modifiedAt = historyEntry.noteModifiedAt;
+                  if(event.noteTitle != null) note.title = event.noteTitle;
+                  if(event.noteText != null) note.text = event.noteText;
+                  note.modifiedAt = event.noteUpdatedAt;
                 }
                 notesBox.updateNote(note);
               }
-            } else if(historyEntry.type == "delete_note") {
-              NoteV1 note = notesBox.getNote(historyEntry.noteId)!;
-              if(!note.deleted) notesBox.updateNote(note..deleted = true);
+            } else if(event is DeleteNoteEvent) {
+              NoteV1 note = notesBox.getNote(event.noteId)!;
+              if(!note.deleted) {
+                notesBox.updateNote(note
+                  ..deleted = true
+                  ..modifiedAt = event.noteDeletedAt);
+              }
             }
-            historyBox.setEntryAppliedToTrue(historyEntry);
+
+            eventsBox.setEventAppliedToTrue(event);
 
             mainSendPort.send("pulledOne.new");
           } on BeshenceVaultException catch(e) {
@@ -161,8 +172,8 @@ class ServerIsolate extends IsolateHandler {
           break;
         case "pushOne":
           try {
-            HistoryEntryV1? entryToUpload = historyBox.getFirstNotUploadedEntry();
-            if(entryToUpload == null) {
+            EventV1? eventToUpload = eventsBox.getNotUploadedEvent();
+            if(eventToUpload == null) {
               mainSendPort.send("pushedOne.noNew");
               return;
             }
@@ -175,54 +186,17 @@ class ServerIsolate extends IsolateHandler {
                 token: localInfoAboutServer.token);
             final BeshenceChain chain = vault.getChain("notes");
 
-            if(entryToUpload.type == "create_note") {
-              String eventId = await chain.postEvent({
-                "request_id": Uuid().v4(),
-                "type": "create_note",
-                "v": "v1",
-                "data": {
-                  "note_id": entryToUpload.noteId,
-                  "created_at": entryToUpload.noteCreatedAt!.millisecondsSinceEpoch,
-                  "modified_at": entryToUpload.noteModifiedAt.millisecondsSinceEpoch,
-                  "title": entryToUpload.noteTitle,
-                  "text": entryToUpload.noteText
-                },
-                if (localInfoAboutServer.lastEventId != null) "prev": localInfoAboutServer.lastEventId
-              });
-              serversBox.setServer(localInfoAboutServer..lastEventId = eventId);
-              historyBox.setEntryEventId(entryToUpload, eventId);
-              mainSendPort.send("pushedOne.new");
-            } else if(entryToUpload.type == "update_note") {
-              String eventId = await chain.postEvent({
-                "request_id": Uuid().v4(),
-                "type": "update_note",
-                "v": "v1",
-                "data": {
-                  "note_id": entryToUpload.noteId,
-                  "modified_at": entryToUpload.noteModifiedAt.millisecondsSinceEpoch,
-                  if(entryToUpload.noteTitle != null) "title": entryToUpload.noteTitle,
-                  if(entryToUpload.noteText != null) "text": entryToUpload.noteText,
-                },
-                if (localInfoAboutServer.lastEventId != null) "prev": localInfoAboutServer.lastEventId
-              });
-              serversBox.setServer(localInfoAboutServer..lastEventId = eventId);
-              historyBox.setEntryEventId(entryToUpload, eventId);
-              mainSendPort.send("pushedOne.new");
-            } else if(entryToUpload.type == "delete_note") {
-              String eventId = await chain.postEvent({
-                "request_id": Uuid().v4(),
-                "type": "delete_note",
-                "v": "v1",
-                "data": {
-                  "note_id": entryToUpload.noteId,
-                  "modified_at": entryToUpload.noteModifiedAt.millisecondsSinceEpoch
-                },
-                if (localInfoAboutServer.lastEventId != null) "prev": localInfoAboutServer.lastEventId
-              });
-              serversBox.setServer(localInfoAboutServer..lastEventId = eventId);
-              historyBox.setEntryEventId(entryToUpload, eventId);
-              mainSendPort.send("pushedOne.new");
-            }
+            String eventId = await chain.postEvent({
+              "request_id": Uuid().v4(),
+              "type": eventToUpload.type,
+              "v": eventToUpload.v,
+              "data": EventV1.convertStringToJSON(eventToUpload.data),
+              if (localInfoAboutServer.lastEventId != null) "prev": localInfoAboutServer.lastEventId
+            });
+
+            serversBox.setServer(localInfoAboutServer..lastEventId = eventId);
+            eventsBox.setEventId(eventToUpload.objectBoxId, eventId);
+            mainSendPort.send("pushedOne.new");
           } on BeshenceVaultException catch(e) {
             print("error while pushing:");
             print(e.httpCode);
